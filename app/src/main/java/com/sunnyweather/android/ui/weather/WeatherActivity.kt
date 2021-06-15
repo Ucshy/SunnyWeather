@@ -31,11 +31,11 @@ class WeatherActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= 21) {
+//        if (Build.VERSION.SDK_INT >= 21) {
             val decorView = window.decorView
             decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             window.statusBarColor = Color.TRANSPARENT
-        }
+//        }
         setContentView(R.layout.activity_weather)
         if (viewModel.locationLng.isEmpty()) {
             viewModel.locationLng = intent.getStringExtra("location_lng") ?: ""
@@ -66,11 +66,8 @@ class WeatherActivity : AppCompatActivity() {
         }
         drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
-
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-
             override fun onDrawerOpened(drawerView: View) {}
-
             override fun onDrawerClosed(drawerView: View) {
                 val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 manager.hideSoftInputFromWindow(drawerView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
