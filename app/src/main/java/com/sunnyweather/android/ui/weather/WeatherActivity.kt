@@ -1,7 +1,10 @@
 package com.sunnyweather.android.ui.weather
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -22,20 +25,25 @@ import kotlinx.android.synthetic.main.activity_weather.*
 import kotlinx.android.synthetic.main.forecast.*
 import kotlinx.android.synthetic.main.life_index.*
 import kotlinx.android.synthetic.main.now.*
+import kotlinx.android.synthetic.main.playvideo.*
 import java.text.SimpleDateFormat
 import java.util.*
+import android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.music.*
+import kotlinx.android.synthetic.main.playvideo.pause
+import kotlinx.android.synthetic.main.playvideo.play
+
 
 class WeatherActivity : AppCompatActivity() {
-
+    private val mediaPlayer = MediaPlayer()
     val viewModel by lazy { ViewModelProviders.of(this).get(WeatherViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        if (Build.VERSION.SDK_INT >= 21) {
             val decorView = window.decorView
             decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             window.statusBarColor = Color.TRANSPARENT
-//        }
         setContentView(R.layout.activity_weather)
         if (viewModel.locationLng.isEmpty()) {
             viewModel.locationLng = intent.getStringExtra("location_lng") ?: ""
@@ -73,8 +81,41 @@ class WeatherActivity : AppCompatActivity() {
                 manager.hideSoftInputFromWindow(drawerView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             }
         })
+        //跳转音乐菜单
+        musicBtn.setOnClickListener {
+            var intent = Intent(this,MusicList::class.java)
+            startActivity(intent)
+        }
+        //新增内容
+        initMediaPlayer()
+        play.setOnClickListener {
+            if (!mediaPlayer.isPlaying) {
+                mediaPlayer.start() // 开始播放
+            }
+        }
+        pause.setOnClickListener {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.pause() // 暂停播放
+            }
+        }
+        stop.setOnClickListener {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.reset() // 停止播放
+                initMediaPlayer()
+            }
+        }
     }
-
+    private fun initMediaPlayer() {
+        val assetManager = assets
+        val fd = assetManager.openFd("music.mp3")
+        mediaPlayer.setDataSource(fd.fileDescriptor,fd.startOffset,fd.length)
+        mediaPlayer.prepare()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
+        mediaPlayer.release()
+    }
     fun refreshWeather() {
         viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
         swipeRefresh.isRefreshing = true
